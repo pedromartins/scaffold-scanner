@@ -18,8 +18,11 @@ import Scanner.Deploy
 parseRegisterArgs = Node <$>
       strOption (short 'h' <> long "host" <> metavar "<ip>" <> help "Node IP to register")
   <*> (   Provides <$> strOption (short 's' <> long "sense" <> metavar "<query>" <> help "Sensing capability to register")
-      <|> IsCapableOf <$> strOption (short 'a' <> long "actuate" <> metavar "<actuator>" <> help  "Actuation capability to register"))
-  <*> strOption (short 'd' <> long "driver" <> metavar "<exec>" <> help "Driver to use")
+      <|> IsCapableOf <$> strOption (short 'a' <> long "actuate" <> metavar "<actuator>" <> help  "Actuation capability to register")
+      <|> pure Any)
+  <*> (strOption (short 'd' <> long "driver" <> metavar "<exec>" <> help "Driver to use")
+      <|> pure "")
+  <*> (strOption (short 'u' <> long "user" <> metavar "<username>" <> help "Username to use") <|> pure "")
 
 main :: IO ()
 main = do
@@ -33,9 +36,12 @@ main = do
                         Just ra -> registerNode ra
     "unregister"  -> unregisterNode . unwords $ args
     "query"       -> (queryNodes . read . capitalize . unwords $ args) >>= print
-    "deploy"      -> void . deployApp Exec . unwords $ args
-    "deploylocal" -> void . deployApp RunLocal . unwords $ args
+    "deploy"      -> let (fname:opts) = args
+                     in void $ deployApp Exec fname opts
+    "deploylocal" -> let (fname:opts) = args
+                     in void $ deployApp RunLocal fname opts
     "display"     -> dumpDB >>= print
+    "readconfig"  -> readConfig >>= print
     otherwise -> printUsage >> exitSuccess
   return ()
   where

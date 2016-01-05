@@ -8,7 +8,7 @@ import Database.HDBC
 import Scale.Types hiding (Node)
 
 type NodeAddress = String
-data Node = Node { host :: NodeAddress, caps :: DepReq, driver :: String }
+data Node = Node { host :: NodeAddress, caps :: DepReq, driver :: String, user :: String }
   deriving (Show, Data, Typeable)
 
 instance Convertible DepReq SqlValue where

@@ -13,7 +13,9 @@ import Scanner.Types
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do
+  -- TODO: Do ids and fks
   run s "CREATE TABLE scanner (node VARCHAR, depreq VARCHAR, driver VARCHAR)" []
+  -- run s "CREATE TABLE node_users (node VARCHAR, user VARCHAR)" []
   return ()
 
 withScanner :: (Connection -> IO a) -> IO a
@@ -25,9 +27,10 @@ withScanner fn = do
   disconnect conn
   return r
 
-registerNode :: Node -> IO ()
-registerNode (Node h c d)  = withScanner $ \s -> do
+registerNodeDB :: Node -> IO ()
+registerNodeDB (Node h c d u)  = withScanner $ \s -> do
   run s "INSERT INTO scanner VALUES (?, ?, ?)" [toSql h, toSql c, toSql d]
+  -- run s "INSERT INTO node_users (?, ?)" [toSql h, toSql u]
   return ()
 
 unregisterNode :: NodeAddress -> IO ()
