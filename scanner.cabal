@@ -22,3 +22,17 @@ Executable scn
     Scanner.Containers
   Hs-Source-Dirs: src
 
+Executable scnd
+  Build-Depends: scale, base, bytestring, parsec, process, template-haskell,
+                 th-lift, syb, convertible, HDBC-sqlite3, HDBC, unix,
+                 optparse-applicative, filepath, directory, regex-posix,
+                 configurator, text, haxr
+  Main-is:  Scanner/Server.hs
+  Other-Modules:
+    Paths_scanner
+    Scanner.Types
+    Scanner.DBC
+    Scanner.Deploy
+    Scanner.Containers
+  Hs-Source-Dirs: src
+

@@ -15,7 +15,7 @@ import Scanner.DBC
 import Scanner.Register
 import Scanner.Deploy
 
-parseRegisterArgs = Node <$>
+parseRegisterArgs = NodeCapRecord <$>
       strOption (short 'h' <> long "host" <> metavar "<ip>" <> help "Node IP to register")
   <*> (   Provides <$> strOption (short 's' <> long "sense" <> metavar "<query>" <> help "Sensing capability to register")
       <|> IsCapableOf <$> strOption (short 'a' <> long "actuate" <> metavar "<actuator>" <> help  "Actuation capability to register")
@@ -33,7 +33,7 @@ main = do
   case map toLower cmd of
     "register"    -> case getParseResult (execParserPure (prefs idm) (info parseRegisterArgs (progDesc "")) args) of
                         Nothing -> printUsage >> exitSuccess
-                        Just ra -> registerNode ra
+                        Just ra -> void $ registerNode ra
     "unregister"  -> unregisterNode . unwords $ args
     "query"       -> (queryNodes . read . capitalize . unwords $ args) >>= print
     "deploy"      -> let (fname:opts) = args
@@ -42,6 +42,7 @@ main = do
                      in void $ deployApp RunLocal fname opts
     "display"     -> dumpDB >>= print
     "readconfig"  -> readConfig >>= print
+    "init"        -> initDatabase
     otherwise -> printUsage >> exitSuccess
   return ()
   where

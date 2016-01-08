@@ -49,7 +49,7 @@ deployApp tgt prog opts = do
     -- TODO: autodetect type of p
     ((oh,eh),ph) <- case nodes of
       n:d:ns -> deploy tgt fname n ("[(" ++ (show q) ++ "," ++ (show d) ++ ")]")
-      []   -> fail "No nodes in the registry satisfy deployment requirements"
+      []     -> fail "No nodes in the registry satisfy deployment requirements"
     return ((oh,eh),ph)
   putStr =<< (hGetContents . fst . fst . last $ ohphs)
   putStr =<< (hGetContents . snd . fst . last $ ohphs)
