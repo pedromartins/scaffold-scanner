@@ -14,7 +14,6 @@ import Scanner.Types
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do
-  -- TODO: Do ids and fks
   run s "CREATE TABLE node (\
             \id INTEGER PRIMARY KEY,\
             \host VARCHAR\
@@ -59,12 +58,12 @@ unregisterNodeDB n = withScanner $ \s -> do
   run s "DELETE FROM node_cap where id = ?" [toSql id]
   return ()
 
-queryNodes :: DepReq -> IO [String]
-queryNodes Any = withScanner $ \s ->
+queryNodesDB :: DepReq -> IO [String]
+queryNodesDB Any = withScanner $ \s ->
   concatMap (map fromSql) <$>
     quickQuery' s "SELECT host, depreq, driver FROM node, node_cap WHERE node_cap.node = node.id" []
 
-queryNodes p = withScanner $ \s -> do
+queryNodesDB p = withScanner $ \s -> do
   print (toSql p)
   concatMap (map fromSql) <$>
     quickQuery' s "SELECT host, depreq, driver FROM node, node_cap WHERE node_cap.node = node.id AND depreq = ?" [toSql p]

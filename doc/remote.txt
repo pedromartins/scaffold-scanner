@@ -1,0 +1,7 @@
+Remote Scanner
+==============
+
+Scanner verbs:
+- REGISTER node caps
+- UNREGISTER node
+- QUERY caps

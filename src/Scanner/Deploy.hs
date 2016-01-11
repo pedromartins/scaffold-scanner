@@ -13,7 +13,7 @@ import Text.Regex.Posix
 
 import Scale.Types hiding (Node)
 import Scanner.Types
-import Scanner.DBC
+import Scanner.Query
 
 -- TODO: Error handling
 
@@ -39,13 +39,13 @@ deploy Exec fname n d = do
 deploy Rkt _ _ _ = undefined
 -- scp container, enable through systemd
 
-deployApp tgt prog opts = do
+deployApp mr tgt prog opts = do
   dirfiles <- getDirectoryContents $ fst (splitFileName prog)
   let images = filter (=~ (prog ++ "[0-9][0-9]*")) dirfiles
   ohphs <- forM (zip images [0..length images]) $ \(fname, i) -> do
     putStrLn fname
     q :: DepReq <- fmap (read . unwords . tail . words . head . lines) . readFile $ fname
-    nodes <- queryNodes q
+    nodes <- queryNodes mr q
     -- TODO: autodetect type of p
     ((oh,eh),ph) <- case nodes of
       n:d:ns -> deploy tgt fname n ("[(" ++ (show q) ++ "," ++ (show d) ++ ")]")
