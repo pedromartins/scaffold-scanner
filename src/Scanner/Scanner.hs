@@ -28,7 +28,7 @@ parseArgs p = RemoteArgs <$>
   <*> p
 
 parseNodeCapRecord = NodeCapRecord <$>
-      (strOption (short 'h' <> long "host" <> metavar "<ip>" <> help "Node IP to register") <|> pure "localhost")
+      ((Just <$> strOption (short 'h' <> long "host" <> metavar "<ip>" <> help "Node IP to register")) <|> pure Nothing)
   <*> (   Provides <$> strOption (short 's' <> long "sense" <> metavar "<query>" <> help "Sensing capability to register")
       <|> IsCapableOf <$> strOption (short 'a' <> long "actuate" <> metavar "<actuator>" <> help  "Actuation capability to register")
       <|> pure Any)
@@ -43,7 +43,7 @@ rcommand c f p = command c (info (fmap handle (parseArgs p)) idm)
 
 processArgs = subparser
   (  (rcommand "register" registerNode parseNodeCapRecord)
-  <> (rcommand "unregister" unregisterNode (argument str idm))
+  <> (rcommand "unregister" unregisterNode ((Just <$> argument str idm) <|> pure Nothing))
   <> (rcommand "query" (queryNodesDB . read . capitalize) (argument str idm))
   <> (command "deploy" (info (fmap (\(RemoteArgs mr args) ->
                                       case words args of
@@ -62,5 +62,4 @@ processArgs = subparser
 
 main :: IO ()
 main = join $ execParser (info processArgs idm)
-
 

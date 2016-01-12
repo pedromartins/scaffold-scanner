@@ -11,7 +11,7 @@ import Scale.Types hiding (Node)
 
 type NodeId = Int
 type NodeAddress = String
-data NodeCapRecord = NodeCapRecord { host :: NodeAddress, cap :: DepReq, driver :: String, user :: String }
+data NodeCapRecord = NodeCapRecord { host :: Maybe NodeAddress, cap :: DepReq, driver :: String, user :: String }
   deriving (Show, Data, Typeable)
 
 instance XmlRpcType DepReq where
@@ -29,3 +29,7 @@ $(asXmlRpcStruct ''NodeCapRecord)
 instance Convertible DepReq SqlValue where
   safeConvert = Right . toSql . show
 
+instance (Show a, Read a) => XmlRpcType (Maybe a) where
+  toValue = ValueString . show
+  fromValue (ValueString x) = return $ read x
+  getType _ = TUnknown
