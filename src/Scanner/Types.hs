@@ -7,7 +7,7 @@ import Database.HDBC
 import Network.XmlRpc.Internals
 import Network.XmlRpc.THDeriveXmlRpcType
 
-import Scale.Types hiding (Node)
+import Scaffold.Types hiding (Node)
 
 type NodeId = Int
 type NodeAddress = String

@@ -1,10 +1,12 @@
 module Main where
 
+import Scaffold.Register
+
 import Scanner.Types
 import Scanner.DBC
-import Scanner.Register
 import Scanner.Deploy
 import Scanner.Query
+import Scanner.Register
 
 import Network.XmlRpc.Server
 

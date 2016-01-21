@@ -11,7 +11,7 @@ import System.Process
 import System.Posix.Process
 import Text.Regex.Posix
 
-import Scale.Types hiding (Node)
+import Scaffold.Types hiding (Node)
 import Scanner.Types
 import Scanner.Query
 

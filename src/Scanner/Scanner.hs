@@ -10,10 +10,12 @@ import System.Exit
 import Network.XmlRpc.Client
 import Network.XmlRpc.Internals
 
-import Scale.Types hiding (Node)
+import Scaffold.Types hiding (Node)
 
-import Scanner.Types
+import Scaffold.Register
+import Scaffold.Util
 import Scanner.Register
+import Scanner.Types
 import Scanner.Deploy
 import Scanner.Query
 import Scanner.DBC
@@ -36,11 +38,6 @@ parseNodeCapRecord = NodeCapRecord <$>
       <|> pure "")
   <*> (strOption (short 'u' <> long "user" <> metavar "<username>" <> help "Username to use") <|> pure "")
 
-rcommand :: forall a b. (XmlRpcType a, XmlRpcType b, Show b) => String -> (a -> IO b) -> Parser a -> Mod CommandFields (IO ())
-rcommand c f p = command c (info (fmap handle (parseArgs p)) idm)
-  where handle (RemoteArgs Nothing args) = (f >=> print) args
-        handle (RemoteArgs (Just r) args) = ((remote r c :: a -> IO b) >=> print) args
-
 processArgs = subparser
   (  (rcommand "register" registerNode parseNodeCapRecord)
   <> (rcommand "unregister" unregisterNode ((Just <$> argument str idm) <|> pure Nothing))
@@ -62,4 +59,9 @@ processArgs = subparser
 
 main :: IO ()
 main = join $ execParser (info processArgs idm)
+
+rcommand :: forall a b. (XmlRpcType a, XmlRpcType b, Show b) => String -> (a -> IO b) -> Parser a -> Mod CommandFields (IO ())
+rcommand c f p = command c (info (fmap handle (parseArgs p)) idm)
+  where handle (RemoteArgs Nothing args) = (f >=> print) args
+        handle (RemoteArgs (Just r) args) = ((remote r c :: a -> IO b) >=> print) args
 

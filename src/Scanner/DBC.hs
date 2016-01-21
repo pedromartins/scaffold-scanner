@@ -8,8 +8,8 @@ import Database.HDBC.Sqlite3 (connectSqlite3, Connection)
 
 import Paths_scanner
 
-import Scale.Types hiding (Node)
-import Scale.Util
+import Scaffold.Types hiding (Node)
+import Scaffold.Util
 import Scanner.Types
 
 initDatabase :: IO ()
