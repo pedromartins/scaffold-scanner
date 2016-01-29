@@ -1,11 +1,13 @@
 module Scanner.DBC where
 
+import Control.Applicative
 import Data.Convertible
 import Data.Data
 import Data.Typeable
 import Database.HDBC
 import Database.HDBC.Sqlite3 (connectSqlite3, Connection)
 import System.Process
+import System.Directory
 
 import Paths_scanner
 
@@ -31,8 +33,10 @@ initDatabase = withScanner $ \s -> do
 
 readScannerConfig :: IO String
 readScannerConfig = do
-   cfg <- Cfg.load [ Cfg.Optional "/etc/scaffold.conf", Cfg.Optional "~/.scaffold.conf" ]
+   hdir <- getHomeDirectory
+   cfg <- Cfg.load [ Cfg.Optional "/etc/scaffold.conf", Cfg.Optional $ hdir ++ "/.scaffold.conf" ]
    dbpath <- Cfg.lookupDefault "/opt/scaffold" cfg (T.pack "dbpath")
+   putStrLn $ "dbpath = " ++ dbpath
    return $ dbpath ++ "/scanner.db"
 
 withScanner :: (Connection -> IO a) -> IO a
