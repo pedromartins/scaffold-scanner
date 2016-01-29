@@ -9,14 +9,13 @@ Data-Files:          scanner.db
 Cabal-Version:       >=1.2
 
 Executable scn
-  Build-Depends: scaffold-base, scale, base, bytestring, parsec, process, template-haskell,
+  Build-Depends: scaffold-base, base, bytestring, parsec, process, template-haskell,
                  th-lift, syb, convertible, HDBC-sqlite3, HDBC, unix,
                  optparse-applicative, filepath, directory, regex-posix,
                  configurator, text, haxr, network
   Main-is:  Scanner/Scanner.hs
   Other-Modules:
     Paths_scanner
-    Scanner.Types
     Scanner.DBC
     Scanner.Deploy
     Scanner.Containers
@@ -24,14 +23,13 @@ Executable scn
   Hs-Source-Dirs: src
 
 Executable scnd
-  Build-Depends: scaffold-base, scale, base, bytestring, parsec, process, template-haskell,
+  Build-Depends: scaffold-base, base, bytestring, parsec, process, template-haskell,
                  th-lift, syb, convertible, HDBC-sqlite3, HDBC, unix,
                  optparse-applicative, filepath, directory, regex-posix,
                  configurator, text, haxr
   Main-is:  Scanner/Server.hs
   Other-Modules:
     Paths_scanner
-    Scanner.Types
     Scanner.DBC
     Scanner.Deploy
     Scanner.Containers

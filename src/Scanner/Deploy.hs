@@ -12,7 +12,6 @@ import System.Posix.Process
 import Text.Regex.Posix
 
 import Scaffold.Types hiding (Node)
-import Scanner.Types
 import Scanner.Query
 
 -- TODO: Error handling

@@ -1,8 +1,8 @@
 module Main where
 
 import Scaffold.Register
+import Scaffold.Types
 
-import Scanner.Types
 import Scanner.DBC
 import Scanner.Deploy
 import Scanner.Query

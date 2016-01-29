@@ -5,20 +5,23 @@ import Data.Data
 import Data.Typeable
 import Database.HDBC
 import Database.HDBC.Sqlite3 (connectSqlite3, Connection)
+import System.Process
 
 import Paths_scanner
 
 import Scaffold.Types hiding (Node)
 import Scaffold.Util
-import Scanner.Types
+
+import qualified Data.Configurator as Cfg
+import qualified Data.Text as T
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do
-  run s "CREATE TABLE node (\
+  run s "CREATE TABLE IF NOT EXISTS node (\
             \id INTEGER PRIMARY KEY,\
             \host VARCHAR\
         \)" []
-  run s "CREATE TABLE node_cap (\
+  run s "CREATE TABLE IF NOT EXISTS node_cap (\
             \id INTEGER PRIMARY KEY AUTOINCREMENT,\
             \node INTEGER,\
             \depreq VARCHAR, driver VARCHAR, user VARCHAR,\
@@ -26,10 +29,17 @@ initDatabase = withScanner $ \s -> do
         \)" []
   return ()
 
+readScannerConfig :: IO String
+readScannerConfig = do
+   cfg <- Cfg.load [ Cfg.Optional "/etc/scaffold.conf", Cfg.Optional "~/.scaffold.conf" ]
+   dbpath <- Cfg.lookupDefault "/opt/scaffold" cfg (T.pack "dbpath")
+   return $ dbpath ++ "/scanner.db"
+
 withScanner :: (Connection -> IO a) -> IO a
 withScanner fn = do
-  sfname <- getDataFileName "scanner.db"
-  conn <- connectSqlite3 sfname
+  dbpath <- readScannerConfig
+  runInteractiveCommand $ "touch " ++ dbpath
+  conn <- connectSqlite3 dbpath
   r <- fn conn
   commit conn
   disconnect conn
@@ -52,7 +62,7 @@ registerNodeRecord (NodeCapRecord h c d u)  = withScanner $ \s ->
       Just id -> return (fromSql id)
     run st "INSERT INTO node_cap(node, depreq, driver, user) SELECT ?, ?, ?, ? \
            \WHERE NOT EXISTS (SELECT 1 from node_cap WHERE node = ? AND depreq = ? AND driver = ? AND user = ?)"
-          (concat $ replicate 2 [toSql newid, toSql c, toSql d, toSql u])
+          (concat $ replicate 2 [toSql newid, toSql (show c), toSql d, toSql u])
     return newid
   where listToMaybe [] = Nothing
         listToMaybe (x:_) = Just x
@@ -71,9 +81,9 @@ queryNodesDB Any = withScanner $ \s ->
     quickQuery' s "SELECT host, depreq, driver, user FROM node, node_cap WHERE node_cap.node = node.id" []
 
 queryNodesDB p = withScanner $ \s -> do
-  print (toSql p)
+  print (toSql (show p))
   concatMap (map fromSql) <$>
-    quickQuery' s "SELECT host, depreq, driver, user FROM node, node_cap WHERE node_cap.node = node.id AND depreq = ?" [toSql p]
+    quickQuery' s "SELECT host, depreq, driver, user FROM node, node_cap WHERE node_cap.node = node.id AND depreq = ?" [toSql (show p)]
 
 dumpDB :: IO [[String]]
 dumpDB = withScanner $ \s ->

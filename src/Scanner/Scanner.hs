@@ -14,8 +14,8 @@ import Scaffold.Types hiding (Node)
 
 import Scaffold.Register
 import Scaffold.Util
+import Scaffold.Types
 import Scanner.Register
-import Scanner.Types
 import Scanner.Deploy
 import Scanner.Query
 import Scanner.DBC
