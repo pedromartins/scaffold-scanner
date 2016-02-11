@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Scanner.DBC where
 
 import Control.Applicative
@@ -16,6 +17,7 @@ import Scaffold.Util
 
 import qualified Data.Configurator as Cfg
 import qualified Data.Text as T
+import Control.Exception
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do
@@ -29,14 +31,15 @@ initDatabase = withScanner $ \s -> do
             \depreq VARCHAR, driver VARCHAR, user VARCHAR,\
             \FOREIGN KEY(node) REFERENCES node(id)\
         \)" []
+  run s "DELETE FROM node" []
+  run s "DELETE FROM node_cap" []
   return ()
 
 readScannerConfig :: IO String
 readScannerConfig = do
-   hdir <- getHomeDirectory
+   hdir <- handle (\(e :: SomeException) -> return "/") getHomeDirectory
    cfg <- Cfg.load [ Cfg.Optional "/etc/scaffold.conf", Cfg.Optional $ hdir ++ "/.scaffold.conf" ]
-   dbpath <- Cfg.lookupDefault "/opt/scaffold" cfg (T.pack "dbpath")
-   putStrLn $ "dbpath = " ++ dbpath
+   dbpath <- Cfg.lookupDefault "." cfg (T.pack "dbpath")
    return $ dbpath ++ "/scanner.db"
 
 withScanner :: (Connection -> IO a) -> IO a
