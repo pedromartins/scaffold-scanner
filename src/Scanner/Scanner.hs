@@ -7,6 +7,8 @@ import Control.Monad
 import Options.Applicative
 import System.Environment
 import System.Exit
+import System.IO
+import System.Process
 import Network.XmlRpc.Client
 import Network.XmlRpc.Internals
 
@@ -23,10 +25,10 @@ import Scanner.DBC
 data RemoteArgs a = RemoteArgs { registry :: Maybe String, payload :: a }
 
 -- TODO: Abstract away adding the registry option.
-parseArgs :: Parser a -> Parser (RemoteArgs a)
-parseArgs p = RemoteArgs <$>
-      ((fmap Just $ strOption (short 'r' <> long "registry" <> metavar "<host>" <> help "Registry to use, defaults to localhost"))
-        <|> pure Nothing)
+parseArgs :: String -> Parser a -> Parser (RemoteArgs a)
+parseArgs r p = RemoteArgs <$>
+      ((fmap Just $ strOption (short 'r' <> long "registry" <> metavar "<host>" <> help "Registry to use, defaults to core."))
+        <|> pure (Just r))
   <*> p
 
 parseNodeCapRecord = NodeCapRecord <$>
@@ -38,18 +40,18 @@ parseNodeCapRecord = NodeCapRecord <$>
       <|> pure "")
   <*> (strOption (short 'u' <> long "user" <> metavar "<username>" <> help "Username to use") <|> pure "")
 
-processArgs = subparser
+processArgs r = subparser
   (  (rcommand "register" registerNode parseNodeCapRecord)
   <> (rcommand "unregister" unregisterNode ((Just <$> argument str idm) <|> pure Nothing))
   <> (rcommand "query" (queryNodesDB . read . capitalize) (argument str idm))
   <> (command "deploy" (info (fmap (\(RemoteArgs mr args) ->
                                       case words args of
                                         (fname:opts) -> void $ deployApp mr Exec fname opts)
-                             (parseArgs (argument str idm))) idm))
+                             (parseArgs r (argument str idm))) idm))
   <> (command "deployLocal" (info (fmap (\(RemoteArgs mr args) ->
                                           case words args of
                                             (fname:opts) -> void $ deployApp mr RunLocal fname opts)
-                                  (parseArgs (argument str idm))) idm))
+                                  (parseArgs r (argument str idm))) idm))
   <> (rcommand "display" dumpNodes (pure ()))
   <> (command "readconfig" (info (pure (readConfig >>= print)) idm))
   <> (command "init" (info (pure initDatabase) idm)))
@@ -57,11 +59,14 @@ processArgs = subparser
     capitalize [] = []
     capitalize (c:cs) = (toUpper c:map toLower cs)
 
-main :: IO ()
-main = join $ execParser (info processArgs idm)
+    rcommand :: forall a b. (XmlRpcType a, XmlRpcType b, Show b) => String -> (a -> IO b) -> Parser a -> Mod CommandFields (IO ())
+    rcommand c f p = command c (info (fmap handle (parseArgs r p)) idm)
+      where handle (RemoteArgs Nothing args) = (f >=> print) args
+            handle (RemoteArgs (Just r) args) = ((remote r c :: a -> IO b) >=> print) args
 
-rcommand :: forall a b. (XmlRpcType a, XmlRpcType b, Show b) => String -> (a -> IO b) -> Parser a -> Mod CommandFields (IO ())
-rcommand c f p = command c (info (fmap handle (parseArgs p)) idm)
-  where handle (RemoteArgs Nothing args) = (f >=> print) args
-        handle (RemoteArgs (Just r) args) = ((remote r c :: a -> IO b) >=> print) args
+main :: IO ()
+main = do
+  (_, oh, _, _) <- runInteractiveCommand "curl http://www.doc.ic.ac.uk/~pm1108/scaffold/dynIP"
+  r <- hGetContents oh
+  join $ execParser (info (processArgs r) idm)
 
