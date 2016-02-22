@@ -12,7 +12,7 @@ Executable scn
   Build-Depends: scaffold-base, base, bytestring, parsec, process, template-haskell,
                  th-lift, syb, convertible, HDBC-sqlite3, HDBC, unix,
                  optparse-applicative, filepath, directory, regex-posix,
-                 configurator, text, haxr, network
+                 configurator, text, haxr, network, http-server
   Main-is:  Scanner/Scanner.hs
   Other-Modules:
     Paths_scanner
@@ -20,13 +20,14 @@ Executable scn
     Scanner.Deploy
     Scanner.Containers
     Scanner.Query
+    Scanner.Config
   Hs-Source-Dirs: src
 
 Executable scnd
   Build-Depends: scaffold-base, base, bytestring, parsec, process, template-haskell,
                  th-lift, syb, convertible, HDBC-sqlite3, HDBC, unix,
                  optparse-applicative, filepath, directory, regex-posix,
-                 configurator, text, haxr
+                 configurator, text, haxr, http-server
   Main-is:  Scanner/Server.hs
   Other-Modules:
     Paths_scanner
@@ -34,5 +35,6 @@ Executable scnd
     Scanner.Deploy
     Scanner.Containers
     Scanner.Query
+    Scanner.Config
   Hs-Source-Dirs: src
 

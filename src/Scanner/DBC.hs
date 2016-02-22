@@ -1,4 +1,3 @@
-{-# LANGUAGE ScopedTypeVariables #-}
 module Scanner.DBC where
 
 import Control.Applicative
@@ -15,9 +14,7 @@ import Paths_scanner
 import Scaffold.Types hiding (Node)
 import Scaffold.Util
 
-import qualified Data.Configurator as Cfg
-import qualified Data.Text as T
-import Control.Exception
+import Scanner.Config
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do
@@ -34,13 +31,6 @@ initDatabase = withScanner $ \s -> do
   run s "DELETE FROM node" []
   run s "DELETE FROM node_cap" []
   return ()
-
-readScannerConfig :: IO String
-readScannerConfig = do
-   hdir <- handle (\(e :: SomeException) -> return "/") getHomeDirectory
-   cfg <- Cfg.load [ Cfg.Optional "/etc/scaffold.conf", Cfg.Optional $ hdir ++ "/.scaffold.conf" ]
-   dbpath <- Cfg.lookupDefault "." cfg (T.pack "dbpath")
-   return $ dbpath ++ "/scanner.db"
 
 withScanner :: (Connection -> IO a) -> IO a
 withScanner fn = do
