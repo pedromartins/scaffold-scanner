@@ -10,6 +10,7 @@ import System.IO
 import Scaffold.Config
 import Scaffold.Register
 import Scaffold.Types
+import Scaffold.DNSSD
 
 import Scanner.DBC
 import Scanner.Deploy
@@ -26,6 +27,7 @@ hello _ = return "Hello"
 xmlRPCServer :: [(String, XmlRpcMethod)] -> IO ()
 xmlRPCServer meths = do
   port <- readPortConfig
+  register "Scaffold Registry" "_scaffold._tcp" "." port ""
   serverWith (Config stdLogger "0.0.0.0" (fromInteger port)) $ \_ _ req -> do
     rsp <- fmap (map (chr . fromIntegral) . LB.unpack) $ handleCall (methods meths) (rqBody req)
     return $ Response (2,0,0) "" [Header HdrContentType "text/xml"

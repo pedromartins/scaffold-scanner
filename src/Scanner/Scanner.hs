@@ -67,6 +67,7 @@ processArgs r = subparser
 
 main :: IO ()
 main = do
-  r <- readRegistryConfig
+  r <- getRegistry
+  putStrLn $ "registry:" ++ r
   join $ execParser (info (helper <*> processArgs r) idm)
 
