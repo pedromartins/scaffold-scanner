@@ -14,7 +14,7 @@ import Paths_scanner
 import Scaffold.Types hiding (Node)
 import Scaffold.Util
 
-import Scanner.Config
+import Scaffold.Config
 
 initDatabase :: IO ()
 initDatabase = withScanner $ \s -> do

@@ -13,10 +13,11 @@ import Network.XmlRpc.Client
 import Network.XmlRpc.Internals
 
 import Scaffold.Types hiding (Node)
-
+import Scaffold.Config
 import Scaffold.Register
 import Scaffold.Util
 import Scaffold.Types
+
 import Scanner.Register
 import Scanner.Deploy
 import Scanner.Query
@@ -32,7 +33,7 @@ parseArgs r p = RemoteArgs <$>
   <*> p
 
 parseNodeCapRecord = NodeCapRecord <$>
-      ((Just <$> strOption (short 'h' <> long "host" <> metavar "<ip>" <> help "Node IP to register")) <|> pure Nothing)
+      ((Just <$> strOption (short 'n' <> long "node" <> metavar "<ip>" <> help "Node IP to register")) <|> pure Nothing)
   <*> (   Provides <$> strOption (short 's' <> long "sense" <> metavar "<query>" <> help "Sensing capability to register")
       <|> IsCapableOf <$> strOption (short 'a' <> long "actuate" <> metavar "<actuator>" <> help  "Actuation capability to register")
       <|> pure Any)
@@ -66,7 +67,6 @@ processArgs r = subparser
 
 main :: IO ()
 main = do
-  (_, oh, _, _) <- runInteractiveCommand "curl http://www.doc.ic.ac.uk/~pm1108/scaffold/dynIP"
-  r <- hGetContents oh
+  r <- readRegistryConfig
   join $ execParser (info (helper <*> processArgs r) idm)
 
