@@ -29,7 +29,7 @@ deploy RunLocal fname _ _ _ _ = do
 
 deploy Exec fname u n d all = do
   -- TODO: write systemd script and enable
-  sshport <- getSshPortConfig
+  sshport <- readSshPortConfig
   putStrLn $ "sshpass -p scaffold scp -P " ++ (show sshport) ++ " " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
   runInteractiveCommand $ "sshpass -p scaffold scp -P " ++ (show sshport) ++ " " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
   print d
