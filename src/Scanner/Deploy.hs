@@ -12,6 +12,7 @@ import System.Posix.Process
 import Text.Regex.Posix
 
 import Scaffold.Types hiding (Node)
+import Scaffold.Config
 import Scanner.Query
 
 -- TODO: Error handling
@@ -28,11 +29,12 @@ deploy RunLocal fname _ _ _ _ = do
 
 deploy Exec fname u n d all = do
   -- TODO: write systemd script and enable
-  putStrLn $ "sshpass -p scaffold scp " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
-  runInteractiveCommand $ "sshpass -p scaffold scp " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
+  sshport <- getSshPortConfig
+  putStrLn $ "sshpass -p scaffold scp -P " ++ (show sshport) ++ " " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
+  runInteractiveCommand $ "sshpass -p scaffold scp -P " ++ (show sshport) ++ " " ++ fname ++ " " ++ u ++ "@" ++ n ++ ":~"
   print d
-  (_, oh, eh, ph) <- runInteractiveCommand $ "sshpass -p scaffold ssh " ++ u ++ "@" ++ n ++ " -- /bin/bash -l runhaskell " ++ (snd $ splitFileName fname) ++ " \"'" ++ (escapeQuotes d) ++ "'\" \"'" ++ (escapeQuotes . show $ all) ++ "'\""
-  putStrLn $ "sshpass -p scaffold ssh " ++ u ++ "@" ++ n ++ " -- /bin/bash -l runhaskell " ++ (snd $ splitFileName fname) ++ " \"'" ++ (escapeQuotes d) ++ "'\" \"'" ++ (escapeQuotes . show $ all) ++ "'\""
+  (_, oh, eh, ph) <- runInteractiveCommand $ "sshpass -p scaffold ssh -p " ++ (show sshport) ++ " " ++ u ++ "@" ++ n ++ " -- /bin/bash -l runhaskell " ++ (snd $ splitFileName fname) ++ " \"'" ++ (escapeQuotes d) ++ "'\" \"'" ++ (escapeQuotes . show $ all) ++ "'\""
+  putStrLn $ "sshpass -p scaffold ssh -p " ++ (show sshport) ++ " " ++ u ++ "@" ++ n ++ " -- /bin/bash -l runhaskell " ++ (snd $ splitFileName fname) ++ " \"'" ++ (escapeQuotes d) ++ "'\" \"'" ++ (escapeQuotes . show $ all) ++ "'\""
   return ((oh,eh),ph)
 
 deploy Rkt _ _ _ _ _ = undefined
