@@ -5,7 +5,7 @@ import Network.XmlRpc.Client
 import Scanner.DBC
 
 queryNodes Nothing = queryNodesDB
-queryNodes (Just r) = remote "query" r
+queryNodes (Just r) = remote r "query"
 
 dumpNodes () = dumpDB
 
