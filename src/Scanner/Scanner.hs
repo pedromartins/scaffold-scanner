@@ -3,6 +3,7 @@ module Main where
 
 import Data.Char
 import Data.Maybe
+import Data.Monoid hiding (Any)
 import Control.Monad
 import Options.Applicative
 import System.Environment
